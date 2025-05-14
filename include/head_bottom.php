@@ -32,6 +32,7 @@
     <script src="../../bootstrap/vendor/datatables-responsive/dataTables.responsive.js"></script>
 	
 	<!--<script src="../../bootstrap/vendor/jquery/jquery.min.js"></script>-->
+	<script src="../../js/cr-api-call.js"></script>
 
 </body>
 

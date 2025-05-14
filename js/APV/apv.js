@@ -2573,33 +2573,33 @@ $(document).ready(function()
 	
 	$(document.body).on('click','#btnSelectPrint > li > a', function () 
 	{
-  		var href = $(this).attr('href');
+    var href = $(this).attr('href');
 		var docentry = $('input[name=txtDocEntry]').val();
-		
-  		if(href == '#APV')
-      {
-        window.open("../../report/APV/apv-report.php?docentry=" + encodeURI(docentry), "", "width=1130,height=550,left=220,top=110");
-        // if(docentry != '')
-        // {
-        //   if(servicetype == 'I')
-        //   {
-        //     window.open("../../report/APV/apv-report-item.php?docentry=" + encodeURI(docentry), "", "width=1130,height=550,left=220,top=110");
-        //   }
-        //   else
-        //   {
-        //     window.open("../../report/APV/apv-report-service.php?docentry=" + encodeURI(docentry), "", "width=1130,height=550,left=220,top=110");
-        //   }
-        // }
-      }
-		
-		if(href == '#APV1')
-		{
-			$('#APVRangeModal').modal('show');
-			 
-		
-			//window.open("../../report/APV/apv-report-service1.php?docentry=" + encodeURI(docentry), "", "width=1130,height=550,left=220,top=110");
-		}			
-    });
+		var doctype = $('select[name=cmbServiceType]').val();
+    var host = window.location.hostname;
+
+    if(href == '#APV1')
+    {
+      // if(doctype == 'S')
+      // {
+        const requestBody = {
+            report: 'Error',
+            parameters: {
+              // 'DocKey@': docentry
+            }
+          };
+          generateReport(host, requestBody);
+      // }
+    }
+    else{
+      const requestBody = {
+        report: 'Error',
+        parameters: {
+        }
+      };
+      generateReport(host, requestBody);
+    }	
+  });
 	
 	$('#APVRangeModal').on('shown.bs.modal', function () 
 	{

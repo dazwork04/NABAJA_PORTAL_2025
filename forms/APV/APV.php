@@ -38,7 +38,8 @@ else
 									<span class="glyphicon glyphicon-print"></span>
 									<span class="caret"></span></button></button>
 										<ul id="btnSelectPrint" class="dropdown-menu">
-											<li><a href="#APV">AP Voucher</a></li>
+											<li><a href="#APV1">AP Voucher</a></li>
+											<!-- <li><a href="#APV">AP Voucher</a></li> -->
 											<!-- <li><a href="#APV1">APV Range</a></li> -->
 										</ul>
 								</div>

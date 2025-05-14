@@ -18,11 +18,11 @@ if(!isset($_SESSION['mssqlserver']))
 	// 	header('Location:http://192.168.1.186:8088/nabaja_portal/');
 	// 	exit;
 	// }
-  if($_SERVER['SERVER_NAME'] == 'SUPERSPEED-DEV8')
-	{
-		header('Location:http://SUPERSPEED-DEV8:8085/nabaja_portal/');
-		exit;
-	} 
+  // if($_SERVER['SERVER_NAME'] == 'SUPERSPEED-DEV8')
+	// {
+	// 	header('Location:http://SUPERSPEED-DEV8:8085/NABAJA_PORTAL_2025/');
+	// 	exit;
+	// } 
 }
 $MSSQL_USER = $_SESSION['mssqluser'];
 $MSSQl_PASSWORD = $_SESSION['mssqlpass'];

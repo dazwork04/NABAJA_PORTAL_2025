@@ -15,9 +15,9 @@ $dbver = $_POST['dbver'];
 $port = $_POST['port'];
 
 //  Crystal Report
-$serverIP = '192.168.0.145';
-$crPort = '44332';
-$crPath = '/SAPCrystalReport/Layout/';
+// $serverIP = '192.168.0.145';
+// $crPort = '44332';
+// $crPath = '/SAPCrystalReport/Layout/';
 
 $empid = '';
 $name = '';
