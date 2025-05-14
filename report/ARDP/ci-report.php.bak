@@ -1,0 +1,374 @@
+
+<?php
+session_start();
+include_once('../../config/config.php');
+
+require_once __DIR__ . '/../../mpdf/vendor/autoload.php';
+$mpdf = new \Mpdf\Mpdf(['tempDir' => __DIR__ . '/../../mpdf/custom/temp/dir/path']);
+
+$empid = $_SESSION['SESS_EMP'];
+$PreparedBy = $_SESSION['SESS_NAME'];
+
+$docentry = $_GET['docentry'];
+
+
+$date = date('m-d-Y');
+$htmlheader = '';
+$htmldetails = '';
+$htmlremarks = '';
+$remarks = '';
+$no = 1;
+
+$cmpDetails = odbc_exec($MSSQL_CONN, "USE [".$_SESSION['mssqldb']."]; SELECT UPPER(REPLACE(CompnyName,'LIVE - ','')) as CompnyName,CompnyAddr FROM OADM");
+odbc_fetch_row($cmpDetails);
+
+$qry = odbc_exec($MSSQL_CONN, " 
+		SELECT	T0.DocEntry,
+			T0.DocNum,
+			T0.CardCode,
+			T0.CardName,
+			T0.Address2,
+			T6.LicTradNum,
+			T0.DocDate,
+			T0.Comments, 
+			T5.PymntGroup,
+			T1.unitMsr,
+			T1.Quantity,
+			T1.Dscription,
+			T1.PriceAfVAT,
+			T1.GTotal,
+			T1.VatGroup,
+			T1.LineTotal,
+			T1.VatSum,
+			T0.DocTotal,
+			T10.CompnyName
+		FROM [OINV] T0
+		INNER JOIN [INV1] T1 ON T0.DocEntry = T1.DocEntry
+		LEFT JOIN [OCTG] T5 ON T0.GroupNum = T5.GroupNum
+		LEFT JOIN [OCRD] T6 ON T0.CardCode = T6.CardCode,
+		OADM T10
+        WHERE T0.DocEntry = '$docentry' ");
+		 
+while (odbc_fetch_row($qry)) 
+{
+	
+	$DocNum = odbc_result($qry, 'DocNum');
+	$PrintDate = date('m/d/Y' ,strtotime(date('Y-m-d')));
+	$CardCode = odbc_result($qry, 'CardCode');
+	$CardName = odbc_result($qry, 'CardName');
+	$Address2 = utf8_decode(odbc_result($qry, 'Address2'));
+	$LicTradNum = odbc_result($qry, 'LicTradNum');
+	$Comments = odbc_result($qry, 'Comments');
+	$DocDate = date('m/d/Y' ,strtotime(odbc_result($qry, 'DocDate')));
+	$PymntGroup = odbc_result($qry, 'PymntGroup');
+	$VatGroup = odbc_result($qry, 'VatGroup');
+	$DocTotal = odbc_result($qry, 'DocTotal');
+	$CompnyName = odbc_result($qry, 'CompnyName');
+	
+	if($VatGroup == 'OVAT-N')
+	{
+		$Vatable += odbc_result($qry, 'LineTotal');
+		$VatSum += odbc_result($qry, 'VatSum');
+	}
+	
+	$GTotal += odbc_result($qry, 'GTotal');
+	
+	if($VatGroup == 'OVAT-E')
+	{
+		$OvatE += odbc_result($qry, 'GTotal');
+	}
+	
+	if($VatGroup == 'OVAT-Z')
+	{
+		$OvatZ += odbc_result($qry, 'GTotal');
+	}
+	
+	$htmldetails .= '<tr>
+                       <td width="10%" style="padding: 2px;border:1px solid black"><center>'.number_format(odbc_result($qry, 'Quantity'),2).'</center></td>
+                        <td width="10%" style="padding: 2px;border:1px solid black"><center>'.odbc_result($qry, 'unitMsr').'</center></td>
+                        <td width="40%" style="padding: 2px;border:1px solid black">'.odbc_result($qry, 'Dscription').'</td>
+						<td width="20%" style="padding: 2px;border:1px solid black" align="right">'.number_format(odbc_result($qry, 'PriceAfVAT'),2).'</td>
+                        <td width="20%" style="padding: 2px;border:1px solid black" align="right">'.number_format(odbc_result($qry, 'GTotal'),2).'</td>
+                    </tr>';
+	//$DocTotal += odbc_result($qry, 'Amount'); */
+	$no++;				  
+}
+
+$html .= '
+		<div class="row">
+            <div class="col-lg-12">
+				<table width="100%" border="0">
+					<thead>
+						<tr>
+							<td  width="15%"><img src="../../img/logo.jpg" width="90" height="70"></td>
+							<td  width="85%" align="left" valign="top"><span style="font-size: 16pt"><b>'.odbc_result($cmpDetails, 'CompnyName').'</b></span><br>
+								<span style="font-size: 8pt">'.odbc_result($cmpDetails, 'Street').'</span><br>
+								<span style="font-size: 8pt">'.odbc_result($cmpDetails, 'City').'</span>
+						</tr>
+						<tr>
+							<td>&nbsp;</td>
+							<td align="right"><b><h2>CHARGE INVOICE</h2></b></td>
+						</tr>
+					</thead>
+				</table>
+				<br>
+				<table width="100%" border="0" style="font-size:20pt;" style="border:1px solid black;">
+					<tbody style="padding:5px!important">
+						<tr>
+							<td width="12%"></td>
+							<td width="2%"><center></center></td>
+							<td width="58%"><b></b></td>
+							<td width="12%">CI No.</td>
+							<td width="5%"><center>:</center></td>
+							<td width="12%" align="right"><b>'.$DocNum.'</b></td>
+						</tr>
+						<tr>
+							<td width="12%">Charge To</td>
+							<td width="2%"><center>:</center></td>
+							<td width="58%"><b>'.$CardName.'</b></td>
+							<td width="12%">Date</td>
+							<td width="5%"><center>:</center></td>
+							<td width="12%" align="right"><b>'.$DocDate.'</b></td>
+						</tr>
+						<tr>
+							<td width="12%">Address</td>
+							<td width="2%"><center>:</center></td>
+							<td width="58%"><b>'.$Address2.'</b></td>
+							<td width="12%">TIN</td>
+							<td width="5%"><center>:</center></td>
+							<td width="12%" align="right"><b>'.$LicTradNum.'</b></td>
+						</tr>
+						<tr>
+							<td width="12%">Bus Style</td>
+							<td width="2%"><center>:</center></td>
+							<td width="58%"><b></b></td>
+							<td width="12%">P.O. No.</td>
+							<td width="5%"><center>:</center></td>
+							<td width="12%" align="right"><b></b></td>
+						</tr>
+						<tr>
+							<td width="12%">OSCA/PWD ID</td>
+							<td width="2%"><center>:</center></td>
+							<td width="58%"><b></b></td>
+							<td width="12%">Terms</td>
+							<td width="5%"><center>:</center></td>
+							<td width="12%" align="right"><b>'.$PymntGroup.'</b></td>
+						</tr>
+					</tbody>
+				</table>
+				<br>
+				<table width="100%" border="0">
+					<thead>
+						<tr bgcolor=""  style="border:1px solid black ">
+							<th style="border:1px solid black "><center>QTY</center></th>
+							<th style="border:1px solid black "><center>UNIT</center></th>
+							<th style="border:1px solid black "><center>DESCRIPTION</center></th>
+							<th style="border:1px solid black "><center>UNIT PRICE</center></th>
+							<th style="border:1px solid black "><center>AMOUNT</center></th>
+						</tr>
+					</thead>
+					<tbody>
+						'.$htmldetails.'
+					</tbody>
+				</table>
+				<table width="100%" border="0">
+					<tbody>
+						<tr>
+							<td width="20%" valign="top"><b>PREPARED BY:</b></td>
+							<td width="20%" valign="top"><b>CHECKED BY:</b></td>
+							<td width="20%" valign="top"><b>RELEASED BY:</b></td>
+							<td width="20%" valign="top"><b>VATABLE:</b></td>
+							<td width="20%" valign="top"><b>TOTAL SALES(VAT<br>INCLUSIVE)</b></td>
+						</tr>
+						<tr>
+							<td width="20%" valign="top" colspan="3"><b></b></td>
+							<td width="20%" valign="top">'.number_format($Vatable,2).'</td>
+							<td width="20%" valign="top">'.number_format($GTotal,2).'</td>
+						</tr>
+						<tr>
+							<td width="20%" valign="top" colspan="3" rowspan="3"><b>REMARKS : &nbsp;</b>Based On Goods Receipt PO 1. 2. Based On Goods Receipt PO 1. 2. Based On Goods Receipt PO 1. 2. Based On Goods Receipt PO 1. 2. Based On Goods Receipt PO 1. 2.</td>
+							<td width="20%" valign="top">
+								<svg height="10" width="80">
+								  <line x1="0" y1="0" x2="200" y2="0" style="stroke:black;stroke-width:2" />
+								</svg>
+							</td>
+							
+							<td width="20%" valign="top">
+								<svg height="10" width="80">
+								  <line x1="0" y1="0" x2="200" y2="0" style="stroke:black;stroke-width:2" />
+								</svg>
+							</td>
+						</tr>
+						<tr>
+							<td width="20%" valign="top"><b>VAT-EXEMPT:</b></td>
+							<td width="20%" valign="top"><b>LESS: VAT</b></td>
+						</tr>
+						<tr>
+							<td width="20%" valign="top">'.number_format($OvatE,2).'</td>
+							<td width="20%" valign="top">'.number_format($VatSum,2).'</td>
+						</tr>
+						<tr>
+							<td width="20%" valign="top" style="font-size:7pt;" colspan="3" rowspan="7"><b>CONDITION OF DELIVERY: </b>All items are considered sold and shall be paid immediately upon demand based on the terms printed above. '.$CompnyName.' shall not be held liable for any
+							damages arising from the same. All items may be returned only in cases of damage on the item
+							except if such damage on the items is brought about by improper use. '.$CompnyName.' shall
+							not accept return of items 15 days from date of purchase. In case of default of payments, an
+							interest of 18% per annum as liquidated damages plus 25% of the amount due as attorney\'s
+							fee will be charged to the customer. The parties shall expressly submit to the jurisdiction of the
+							courts of Surigao City in any legal action arising out of this transaction.<br>
+							<b>I/We agree to the terms stated above and received the goods and services listed in
+							good order and condition.</b>
+							</td>
+							<td width="20%" valign="top">
+								<svg height="10" width="80">
+								  <line x1="0" y1="0" x2="200" y2="0" style="stroke:black;stroke-width:2" />
+								</svg>
+							</td>
+							
+							<td width="20%" valign="top">
+								<svg height="10" width="80">
+								  <line x1="0" y1="0" x2="200" y2="0" style="stroke:black;stroke-width:2" />
+								</svg>
+							</td>
+						</tr>
+						<tr>
+							<td width="20%" valign="top"><b>VAT-ZERO-RATED:</b></td>
+							<td width="20%" valign="top"><b>TOTAL:</b></td>
+						</tr>
+						<tr>
+							<td width="20%" valign="top">'.number_format($OvatZ,2).'</td>
+							<td width="20%" valign="top">'.number_format($DocTotal,2).'</td>
+						</tr>
+						<tr>
+							<td width="20%" valign="top">
+								<svg height="10" width="80">
+								  <line x1="0" y1="0" x2="200" y2="0" style="stroke:black;stroke-width:2" />
+								</svg>
+							</td>
+							
+							<td width="20%" valign="top">
+								<svg height="10" width="80">
+								  <line x1="0" y1="0" x2="200" y2="0" style="stroke:black;stroke-width:2" />
+								</svg>
+							</td>
+						</tr>
+						<tr>
+							<td width="20%" valign="top"><b>VAT-12%:</b></td>
+							<td width="20%" valign="top"><b>LESS: SC/PWD-DISC.</b></td>
+						</tr>
+						<tr>
+							<td width="20%" valign="top">'.number_format($VatSum,2).'</td>
+							<td width="20%" valign="top">0.00</td>
+						</tr>
+						<tr>
+							<td width="20%" valign="top">
+								<svg height="10" width="80">
+								  <line x1="0" y1="0" x2="200" y2="0" style="stroke:black;stroke-width:2" />
+								</svg>
+							</td>
+							
+							<td width="20%" valign="top">
+								<svg height="10" width="80">
+								  <line x1="0" y1="0" x2="200" y2="0" style="stroke:black;stroke-width:2" />
+								</svg>
+							</td>
+						</tr>
+						<tr>
+							<td width="20%" valign="top"><b></b></td>
+							<td width="20%" valign="top"><b></b></td>
+							<td width="20%" valign="top"><b></b></td>
+							<td width="20%" valign="top"><b>TOTAL AMOUNT DUE:</b></td>
+							<td width="20%" valign="top"><b></b></td>
+						</tr>
+						<tr>
+							<td width="20%" valign="top"><b></b></td>
+							<td width="20%" valign="top"><b></b></td>
+							<td width="20%" valign="top"><b></b></td>
+							<td width="20%" valign="top"><b></b></td>
+							<td width="20%" valign="top"><b>'.number_format($DocTotal,2).'</b></td>
+						</tr>
+						<tr>
+							<td width="20%" valign="top"><b></b></td>
+							<td width="20%" valign="top"><b></b></td>
+							<td width="20%" valign="top"><b></b></td>
+							<td width="20%" valign="top"><b></b></td>
+							<td width="20%" valign="top">
+								<svg height="10" width="80">
+								  <line x1="0" y1="0" x2="200" y2="0" style="stroke:black;stroke-width:2" />
+								</svg>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+				<table width="100%" border="0">
+					<tbody>
+						<tr>
+							<td width="29%" valign="top"><center><b>___________________________</b></center></td>
+							<td width="29%" valign="top"><center><b>___________________________</b></center></td>
+							<td width="29%" valign="top"><center><b>___________________________</b></center></td>
+							<td width="13%" valign="top"><center><b>___________________________</b></center></td>
+						</tr>
+						<tr>
+							<td width="29%" valign="top"><center><b>PRINT NAME</b></center></td>
+							<td width="29%" valign="top"><center><b>SIGNATURE</b></center></td>
+							<td width="29%" valign="top"><center><b>POSITION</b></center></td>
+							<td width="13%" valign="top"><center><b>DATE</b></center></td>
+						</tr>
+					</tbody>
+				</table>
+				<br>
+				<table width="100%" border="0" style="font-family:Tahoma, Tahoma, Tahoma;">
+					<tr>
+						<td width="30%" style="font-family:Tahoma, Tahoma, Tahoma; font-size:7pt;" colspan="3"><center><b>"THIS CHARGE INVOICE SHALL BE VALID FOR FIVE (5) YEARS FROM THE DATE OF ATP"</b></center></td>
+					</tr>
+					<tr>
+						<td width="30%" style="font-family:Tahoma, Tahoma, Tahoma; font-size:7pt;" colspan="3"><center><b>&nbsp;</b></center></td>
+					</tr>
+					<tr>
+						<td width="30%" style="font-family:Tahoma, Tahoma, Tahoma; font-size:6pt;"><b>Acknowledgement Certificate No. :</b></td>
+						<td width="30%" style="font-family:Tahoma, Tahoma, Tahoma; font-size:6pt;"><b>Date Issued :</b></td>
+						<td width="30%" style="font-family:Tahoma, Tahoma, Tahoma; font-size:6pt;" rowspan="3" valign="top">
+						Software Provider: <br>
+						<b>SuperSpeed Solutions and Services, Inc.</b> <br>
+						13 Lot 7 Blk 17 Apitong St. Evergreen Executive Village, San Roque, Antipolo City <br>
+						VAT Reg. TIN: 009-356-655-000 <br>
+						</td>
+					</tr>
+					<tr>
+						<td width="30%" style="font-family:Tahoma, Tahoma, Tahoma; font-size:6pt;"><b>&nbsp;</b></td>
+						<td width="30%" style="font-family:Tahoma, Tahoma, Tahoma; font-size:6pt;"><b>&nbsp;</b></td>
+						
+					</tr>
+					<tr>
+						<td width="30%" style="font-family:Tahoma, Tahoma, Tahoma; font-size:6pt;"><b>Series :</b>  CI0000000001 to CI9999999999</td>
+						<td width="30%" style="font-family:Tahoma, Tahoma, Tahoma; font-size:6pt;"><b>Effectivity Date :</b></td>
+						
+					</tr>
+					<tr>
+						<td width="30%" style="font-family:Tahoma, Tahoma, Tahoma; font-size:6pt;"><b>&nbsp;</b></td>
+						<td width="30%" style="font-family:Tahoma, Tahoma, Tahoma; font-size:6pt;"><b>&nbsp;</b></td>
+						<td width="30%" style="font-family:Tahoma, Tahoma, Tahoma; font-size:6pt;"><b>&nbsp;</b></td>
+					</tr>
+					<tr>
+						<td width="30%" style="font-family:Tahoma, Tahoma, Tahoma; font-size:6pt;"><b>&nbsp;</b></td>
+						<td width="30%" style="font-family:Tahoma, Tahoma, Tahoma; font-size:6pt;"><b>&nbsp;</b></td>
+						<td width="30%" style="font-family:Tahoma, Tahoma, Tahoma; font-size:6pt;"><b>&nbsp;</b></td>
+					</tr>
+				</table>
+			</div>
+          </div>
+        ';
+
+$mpdf->SetWatermarkText('');
+$mpdf->watermark_font = 'DejaVuSansCondensed';
+$mpdf->showWatermarkText = true;
+
+
+$stylesheet = file_get_contents('../../mpdf/mpdf_css/rpt_1-report.css');
+$mpdf->WriteHTML($stylesheet,1);
+
+$mpdf->WriteHTML(utf8_encode($html));
+
+$mpdf->Output();
+exit;
+
+?>

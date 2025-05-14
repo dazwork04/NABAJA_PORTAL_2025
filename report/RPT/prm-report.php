@@ -1,0 +1,119 @@
+<?php
+
+include_once('../../config/config.php');
+
+require_once __DIR__ . '/../../mpdf/vendor/autoload.php';
+$mpdf = new \Mpdf\Mpdf(['tempDir' => __DIR__ . '/../../mpdf/custom/temp/dir/path']);
+
+$date = date('m-d-Y');
+
+$htmlheader = '';
+$htmldetails = '';
+$html = '';
+$remarks = '';
+
+$empid = $_SESSION['SESS_EMP'];
+$datefrom = $_GET['datefrom'];
+$dateto = $_GET['dateto'];
+$cmpDetails = odbc_exec($MSSQL_CONN, "USE [".$_SESSION['mssqldb']."]; SELECT UPPER(T0.CompnyName) as CompnyName, 
+																				T0.CompnyAddr, 
+																				T1.Street, 
+																				T1.City
+																		FROM OADM T0, ADM1 T1");
+																		
+																		odbc_fetch_row($cmpDetails);
+	
+		$qry = odbc_exec($MSSQL_CONN, "USE [".$_SESSION['mssqldb']."]; 
+										SELECT T0.DocEntry,
+											T0.DocNum,
+											T0.DocDate,
+											T0.ReqName,
+											T0.DocTotal,
+											T0.Comments
+											
+										FROM OPRQ T0
+										LEFT JOIN OHEM T1 ON T0.Requester = T1.empID
+										WHERE T0.DocStatus = 'O' AND T0.DocDate BETWEEN '$datefrom' AND '$dateto'
+										ORDER BY T0.DocDate ASC");
+		
+		while (odbc_fetch_row($qry)) 
+		{
+			
+			$htmldetails .= '<tr>
+								<td width="5%"><center>'.odbc_result($qry, 'DocNum').'</center></td>
+								<td width="5%"><center>'.date_format(date_create(odbc_result($qry, 'DocDate')),'m/d/Y').'</center></td>
+								<td width="5%">'.odbc_result($qry, 'ReqName').'</td>
+								<td width="5%" align="right">'.number_format(odbc_result($qry, 'DocTotal'),2).'</td>
+								<td width="5%">'.odbc_result($qry, 'Comments').'</td>
+							</tr>';
+							$DocTotal += odbc_result($qry, 'DocTotal');
+		}	
+
+$html .= '<div class="row">
+            <div class="col-lg-12">
+				<style>
+					td.border-left-bottom
+					{
+						border-left: solid 1px black;
+						border-right: solid 1px black;
+						border-top: solid 1px black;
+						border-bottom: solid 1px black;
+					}
+				</style>
+				<table width="100%" border="0">
+					<thead>
+						<tr>
+							<td  width="15%"><img src="../../img/logo.jpg" width="90" height="70"></td>
+							<td  width="85%" align="left" valign="top"><span style="font-size: 16pt"><b>'.odbc_result($cmpDetails, 'CompnyName').'</b></span><br>
+								<span style="font-size: 8pt">'.odbc_result($cmpDetails, 'Street').'</span><br>
+								<span style="font-size: 8pt">'.odbc_result($cmpDetails, 'City').'</span>
+						</tr>
+						<tr>
+							<td colspan="4"><center><h2>OPEN PURCHASE REQUEST</h2></center></td>
+						</tr>
+						<tr>
+							<td colspan="4"><center><h3><span style="color:gray">Date : '.$datefrom.' - '.$dateto.'</span></h3></center></td>
+						</tr>
+						
+					</thead>
+				</table>
+				<br>
+				<table width="100%" border="1">
+					<thead>
+						<tr bgcolor="lightgray">
+							<th width="5%"><center>PR #</center></th>
+							<th width="5%"><center>DOC DATE</center></th>
+							<th width="5%"><center>REQUESTOR</center></th>
+							<th width="5%"><center>AMOUNT</center></th>
+							<th width="5%"><center>REMARKS</center></th>
+						</tr>
+					</thead>
+					<tbody>
+						'.$htmldetails.'
+						<tr bgcolor="lightgray">
+							<th width="5%" colspan="3" align="right">TOTAL</th>
+							<th width="5%"><center>'.number_format($DocTotal,2).'</center></th>
+							<th width="5%"></th>
+						</tr>
+					</tbody>
+					
+				</table>
+			</div>
+          </div>
+          
+        ';
+
+$mpdf->SetWatermarkText('');
+$mpdf->watermark_font = 'DejaVuSansCondensed';
+$mpdf->showWatermarkText = true;
+
+
+$stylesheet = file_get_contents('../../mpdf/mpdf_css/rpt_1-report.css');
+$mpdf->WriteHTML($stylesheet,1);
+
+$mpdf->WriteHTML(utf8_encode($html));
+
+$mpdf->Output();
+exit;
+
+?>

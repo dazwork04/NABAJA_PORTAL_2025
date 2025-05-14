@@ -1,0 +1,275 @@
+
+<?php
+session_start();
+include_once('../../config/config.php');
+
+require_once __DIR__ . '/../../mpdf/vendor/autoload.php';
+$mpdf = new \Mpdf\Mpdf(['tempDir' => __DIR__ . '/../../mpdf/custom/temp/dir/path']);
+
+$empid = $_SESSION['SESS_EMP'];
+$PreparedBy = $_SESSION['SESS_NAME'];
+
+$docentry = $_GET['docentry'];
+
+$date = date('m/d/Y');
+$htmlheader = '';
+$htmldetails = '';
+$htmlremarks = '';
+$html = '';
+$remarks = '';
+$no = 1;
+
+$cmpDetails = odbc_exec($MSSQL_CONN, "USE [".$_SESSION['mssqldb']."]; SELECT UPPER(T0.CompnyName) as CompnyName, 
+																																											T0.CompnyAddr, 
+																																											T1.Street, 
+																																											T1.City
+																																									FROM OADM T0, ADM1 T1");
+odbc_fetch_row($cmpDetails);
+
+$qry = odbc_exec($MSSQL_CONN, " 
+		 SELECT	T0.DocEntry,
+				T0.DocNum,
+				T0.CardCode,
+				T0.CardName,
+				T0.Address2,
+				T0.DocDate,
+				T0.DocDueDate,
+				T0.NumAtCard,
+				T0.DocTotal - T0.VatSum AS SubTotal,
+				T0.VatSum,
+				UPPER(T0.ReqName) as Requester,
+				CONVERT(VARCHAR, T0.DocDate, 107) as DocDate,
+				CONVERT(VARCHAR, T0.ReqDate, 107) as ReqDate,
+				T0.Comments, 
+				FORMAT(T1.Quantity, 'N0') as Quantity,
+				T1.Price,
+				T0.DocTotal,
+				T5.PymntGroup,
+				T1.ItemCode,
+				T1.Dscription,
+				T1.LineTotal,
+				T1.unitMsr,
+				T1.LicTradNum,
+				T1.Text		
+		
+        FROM [ODLN] T0
+        INNER JOIN [DLN1] T1 ON T0.DocEntry = T1.DocEntry
+		LEFT JOIN [OCTG] T5 ON T0.GroupNum = T5.GroupNum
+		LEFT JOIN [OCRD] T6 ON T0.CardCode = T6.CardCode
+        WHERE T0.DocEntry = '$docentry' ");
+		 
+while (odbc_fetch_row($qry)) 
+{
+	
+	$DocNum = odbc_result($qry, 'DocNum');
+	$PrintDate = date('M d, Y' ,strtotime(date('Y-m-d')));
+	$CardCode = odbc_result($qry, 'CardCode');
+	$CardName = odbc_result($qry, 'CardName');
+	$Address2 = utf8_decode(odbc_result($qry, 'Address2'));
+	$LicTradNum = odbc_result($qry, 'LicTradNum');
+	$NumAtCard = odbc_result($qry, 'NumAtCard');
+	$Comments = odbc_result($qry, 'Comments');
+	$DocDate = date('M d, Y' ,strtotime(odbc_result($qry, 'DocDate')));
+	$DocDueDate = date('M d, Y' ,strtotime(odbc_result($qry, 'DocDueDate')));
+	$ReqDate = odbc_result($qry, 'ReqDate');
+	$SubTotal = odbc_result($qry, 'SubTotal');
+	$DocTotal = odbc_result($qry, 'DocTotal');
+	$VatSum = odbc_result($qry, 'VatSum');
+	$PymntGroup = odbc_result($qry, 'PymntGroup');
+	$Text = odbc_result($qry, 'Text');
+	
+	$htmldetails .= '<tr>
+                        <td style="padding: 2px;border:1px solid black"><center>'.$no.'</center></td>
+						<td style="padding: 2px;border:1px solid black">'.odbc_result($qry, 'ItemCode').'</td>
+                        <td style="padding: 2px;border:1px solid black">'.odbc_result($qry, 'Dscription').'</td>
+						<td style="padding: 2px;border:1px solid black"><center>'.number_format(odbc_result($qry, 'Quantity'),2).'</center></td>
+                        <td style="padding: 2px;border:1px solid black"><center>'.odbc_result($qry, 'unitMsr').'</center></td>
+                        <td style="padding: 2px;border:1px solid black" align="right">'.number_format(odbc_result($qry, 'Price'),2).'</td>
+                        <td style="padding: 2px;border:1px solid black" align="right">'.number_format(odbc_result($qry, 'LineTotal'),2).'</td>
+                    </tr>';
+	//$DocTotal += odbc_result($qry, 'Amount'); */
+	$no++;				  
+}
+
+$html .= '
+		<div class="row">
+            <div class="col-lg-12">
+				<style>
+					td.border-left-bottom
+					{
+						border-left: solid 1px black;
+						border-right: solid 1px black;
+						border-top: solid 1px black;
+						border-bottom: solid 1px black;
+					}
+				</style>
+				<table width="100%" border="0">
+					<thead>
+						<tr>
+							<td  width="15%"><img src="../../img/logo.jpg" width="90" height="70"></td>
+							<td  width="85%" align="left" valign="top"><span style="font-size: 16pt"><b>'.odbc_result($cmpDetails, 'CompnyName').'</b></span><br>
+								<span style="font-size: 8pt">'.odbc_result($cmpDetails, 'Street').'</span><br>
+								<span style="font-size: 8pt">'.odbc_result($cmpDetails, 'City').'</span>
+						</tr>
+						<tr>
+							<td>&nbsp;</td>
+							<td align="right"><b><h2>DELIVERY</h2></b></td>
+						</tr>
+					</thead>
+				</table>
+				<br>
+				<table width="100%" border="0" style="font-size:20pt;" style="border:1px solid black;">
+					<tbody style="padding:5px!important">
+						<tr>
+							<td width="12%">Customer Code</td>
+							<td width="2%"><center>:</center></td>
+							<td width="58%"><b>'.$CardCode.'</b></td>
+							<td width="12%">Document No.</td>
+							<td width="5%"><center>:</center></td>
+							<td width="12%" align="right"><b>'.$DocNum.'</b></td>
+						</tr>
+						<tr>
+							<td width="12%">Customer Name</td>
+							<td width="2%"><center>:</center></td>
+							<td width="58%"><b>'.$CardName.'</b></td>
+							<td width="12%">Print Date</td>
+							<td width="5%"><center>:</center></td>
+							<td width="12%" align="right"><b>'.$PrintDate.'</b></td>
+						</tr>
+						<tr>
+							<td width="12%">Address</td>
+							<td width="2%"><center>:</center></td>
+							<td width="58%"><b>'.$Address2.'</b></td>
+							<td width="12%">Date</td>
+							<td width="5%"><center>:</center></td>
+							<td width="12%" align="right"><b>'.$DocDate.'</b></td>
+						</tr>
+						<tr>
+							<td width="12%">TIN</td>
+							<td width="2%"><center>:</center></td>
+							<td width="58%"><b>'.$LicTradNum.'</b></td>
+							<td width="12%">Expected Delivery</td>
+							<td width="5%"><center>:</center></td>
+							<td width="12%" align="right"><b>'.$DocDueDate.'</b></td>
+						</tr>
+					</tbody>
+				</table>
+				<br>
+				<table width="100%" border="0">
+					<thead>
+						<tr bgcolor="lightgray"  style="border:1px solid black ">
+							<th style="height:30px;border:1px solid black"><center>#</center></th>
+							<th style="border:1px solid black "><center>ITEM CODE</center></th>
+							<th style="border:1px solid black "><center>ITEM DESCRIPTION</center></th>
+							<th style="border:1px solid black "><center>QTY</center></th>
+							<th style="border:1px solid black "><center>UOM</center></th>
+							<th style="border:1px solid black "><center>PRICE</center></th>
+							<th style="border:1px solid black "><center>TOTAL</center></th>
+						</tr>
+					</thead>
+					<tbody>
+						'.$htmldetails.'
+					</tbody>
+					<tfoot>
+						<tr>
+							<td colspan="5"><center></center></td>
+							<td class="border-left-bottom"><b><center>SUB TOTAL</center></b></td>
+							<td class="border-left-bottom" align="right"><b>'.number_format($SubTotal,2).'</b></td>
+						</tr>
+						<tr>
+							<td colspan="5"><center></center></td>
+							<td class="border-left-bottom"><b><center>12% VAT</center></b></td>
+							<td class="border-left-bottom" align="right"><b>'.number_format($VatSum,2).'</b></td>
+						</tr>
+						<tr>
+							<td colspan="5"><b>REMARKS</b></td>
+							<td class="border-left-bottom"><b><center>TOTAL</center></b></td>
+							<td class="border-left-bottom" align="right"><b>'.number_format($DocTotal,2).'</b></td>
+						</tr>
+						<tr>
+							<td class="border-left-bottom" colspan="4">
+								'.$Comments.'
+								<br>&nbsp;
+							</td>
+							<td colspan="3">&nbsp;</td>
+						</tr>
+					</tfoot>
+				</table>
+				<br>
+				<br>
+				<br>
+				<br>
+				<table width="100%" border="0">
+					<tr>
+						<td width="30%"><center>________________________________</center></td>
+						<td width="30%"><center>________________________________</center></td>
+						<td width="30%"><center>________________________________</center></td>
+					</tr>
+					<tr>
+						<td width="30%"><center>Prepared by</center></td>
+						<td width="30%"><center>Checked by</center></td>
+						<td width="30%"><center>Approved by</center></td>
+					</tr>
+				</table>
+				<br>
+				<br>
+				<table width="100%" border="0" style="font-family:Tahoma, Tahoma, Tahoma;">
+					<tr>
+						<td width="30%" style="font-family:Tahoma, Tahoma, Tahoma; font-size:6pt;"><b>Acknowledgement Certificate No. :</b></td>
+						<td width="30%" style="font-family:Tahoma, Tahoma, Tahoma; font-size:6pt;"><b>Date Issued :</b></td>
+						<td width="30%" style="font-family:Tahoma, Tahoma, Tahoma; font-size:6pt;" rowspan="3" valign="top">
+						Software Provider: <br>
+						SuperSpeed Solutions and Services, Inc. <br>
+						13 Lot 7 Blk 17 Apitong St. Evergreen Executive Village, San Roque, Antipolo City <br>
+						VAT Reg. TIN: 009-356-655-000 <br>
+						</td>
+					</tr>
+					<tr>
+						<td width="30%" style="font-family:Tahoma, Tahoma, Tahoma; font-size:6pt;"><b>&nbsp;</b></td>
+						<td width="30%" style="font-family:Tahoma, Tahoma, Tahoma; font-size:6pt;"><b>&nbsp;</b></td>
+						
+					</tr>
+					<tr>
+						<td width="30%" style="font-family:Tahoma, Tahoma, Tahoma; font-size:6pt;"><b>Series :</b>  DR0000000001   to   DR9999999999</td>
+						<td width="30%" style="font-family:Tahoma, Tahoma, Tahoma; font-size:6pt;"><b>Effectivity Date :</b></td>
+						
+					</tr>
+					<tr>
+						<td width="30%" style="font-family:Tahoma, Tahoma, Tahoma; font-size:6pt;"><b>&nbsp;</b></td>
+						<td width="30%" style="font-family:Tahoma, Tahoma, Tahoma; font-size:6pt;"><b>&nbsp;</b></td>
+						<td width="30%" style="font-family:Tahoma, Tahoma, Tahoma; font-size:6pt;"><b>&nbsp;</b></td>
+					</tr>
+					<tr>
+						<td width="30%" style="font-family:Tahoma, Tahoma, Tahoma; font-size:6pt;"><b>&nbsp;</b></td>
+						<td width="30%" style="font-family:Tahoma, Tahoma, Tahoma; font-size:6pt;"><b>&nbsp;</b></td>
+						<td width="30%" style="font-family:Tahoma, Tahoma, Tahoma; font-size:6pt;"><b>&nbsp;</b></td>
+					</tr>
+					<tr>
+						<td width="30%" style="font-family:Tahoma, Tahoma, Tahoma; font-size:7pt;" colspan="3"><center><b>"THIS SALES ORDER IS NOT VALID FOR CLAIM OF INPUT TAX."</b></center></td>
+					</tr>
+					<tr>
+						<td width="30%" style="font-family:Tahoma, Tahoma, Tahoma; font-size:7pt;" colspan="3"><center><b></b></center></td>
+					</tr>
+					
+					<tr>
+						<td width="30%" style="font-family:Tahoma, Tahoma, Tahoma; font-size:7pt;" colspan="3"><center><b>"THIS SALES ORDER SHALL BE VALID FOR FIVE (5) YEARS FROM THE DATE OF ACKNOWLEDGEMENT CERTIFICATE"</b></center></td>
+					</tr>
+				</table>				
+			</div>
+          </div>
+        ';
+
+$mpdf->SetWatermarkText('');
+$mpdf->watermark_font = 'DejaVuSansCondensed';
+$mpdf->showWatermarkText = true;
+
+
+$stylesheet = file_get_contents('../../mpdf/mpdf_css/rpt_1-report.css');
+$mpdf->WriteHTML($stylesheet,1);
+
+$mpdf->WriteHTML(utf8_encode($html));
+
+$mpdf->Output();
+exit;
+
+?>

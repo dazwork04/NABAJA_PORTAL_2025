@@ -1,0 +1,17 @@
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+#sign-in-form-content{
+  margin-top: 5%;
+}
+
+.sign-in-map{
+	font-size: 140px;
+	margin-bottom: -20px;
+}
+
+.sign-text{
+	font-size: 25px;
+}

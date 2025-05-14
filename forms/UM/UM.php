@@ -1,0 +1,344 @@
+<?php 
+	include_once('../../include/head_top.php');
+	include_once('../../config/config.php');
+?>
+
+		<div class="row">
+			<div class="col-lg-12">
+				<div class="panel panel-info">
+					<div class="panel-heading">
+						<i class="fa fa-edit fa-fw"></i> User Management
+                    </div>
+					<div class="panel-body">
+						<div class="row">
+							<div class="col-lg-4 col-md-4">	
+								<div class="form-group">
+									<form>
+									<table width="100%" border="0">
+										<tbody>
+											<tr>
+												<td width="25%">User Id</td>
+												<td width="75%" colspan="2" style="padding-top: 2px;  padding-bottom: 2px;">
+													<input id="txtUserId" readonly type="hidden" name="txtUserId" style="width:100%" class="form-control input-sm">
+														<div id="txtRequesterCont" class="input-group">
+															<input type="text" readonly class="form-control input-sm" id="txtEmployeeId" name="txtEmployeeId">
+															<span class="input-group-addon" style="height: 18px; padding: 0 4px; margin: 0;" data-toggle="modal" data-target="#EmployeeModal"><span class="glyphicon glyphicon-list"></span></span>
+														</div>
+												</td>
+											</tr>
+											<tr>
+												<td width="25%">Name</td>
+												<td width="75%" colspan="2" style="padding-top: 2px;  padding-bottom: 2px;"><input id="txtName" type="text" name="txtName" style="width:100%" class="form-control input-sm required" readonly></td>
+											</tr>
+											<tr class="hidden">
+												<td width="25%">Position</td>
+												<td width="75%" colspan="2" style="padding-top: 2px;  padding-bottom: 2px;">
+													<select id="Position" name="Position" class="form-control input-sm">
+													
+													</select>
+												</td>
+											</tr>
+											<tr class="hidden">
+												<td width="25%">Manufacturer</td>
+												<td width="75%" colspan="2" style="padding-top: 2px;  padding-bottom: 2px;">
+													<select id="Manufacturer" name="Manufacturer" class="form-control input-sm">
+													
+													</select>
+												</td>
+											</tr>
+											<tr>
+												<td>Portal User Code</td>
+												<td colspan="2" style="padding-top: 2px;  padding-bottom: 2px;"><input id="UserCode" type="text" name="UserCode" style="width:100%" class="form-control input-sm required"></td>
+											</tr>
+											<tr>
+												<td>Portal User Pass</td>
+												<td colspan="2" style="padding-top: 2px;  padding-bottom: 2px;"><input id="UserPass" type="password" name="UserPass" style="width:100%" class="form-control input-sm "></td>
+											</tr>
+											<tr>
+												<td>Department</td>
+												<td colspan="2" style="padding-top: 2px;  padding-bottom: 2px;">
+												<select id="Department" name="Department" class="form-control input-sm">
+													
+												</select>
+												</td>
+											</tr>
+											<tr class="hidden">
+												<td>SAP User Code</td>
+												<td colspan="2" style="padding-top: 2px;  padding-bottom: 2px;"><input id="SapCode" type="text" name="SapCode" style="width:100%" class="form-control input-sm "></td>
+											</tr>
+											<tr class="hidden">
+												<td>SAP User Pass</td>
+												<td colspan="2" style="padding-top: 2px;  padding-bottom: 2px;"><input id="SapPass" type="password" name="SapPass" style="width:100%" class="form-control input-sm "></td>
+											</tr>
+											<tr class="hidden">
+												<td>Per Email</td>
+												<td colspan="2" width="75%" style="padding-top: 2px;  padding-bottom: 2px;"><textarea rows="3" cols="40" id="txtPerEmail" name="txtPerEmail"></textarea></td>
+											</tr>
+											<tr class="hidden">
+												<td>Email</td>
+												<td colspan="2" width="75%" style="padding-top: 2px;  padding-bottom: 2px;"><textarea rows="3" cols="40" id="txtToEmail" name="txtToEmail"></textarea></td>
+											</tr>
+											<tr>
+												<td>Status</td>
+												<td colspan="2" style="padding-top: 2px;  padding-bottom: 2px;">
+												<select id="Status" name="Status" class="form-control input-sm required">
+													<option value="">-Select-</option>
+													<option value="Active">Active</option>
+													<option value="Deactivate">Deactivate</option>
+												</select>
+												</td>
+											</tr>
+											<tr class="hidden">
+												<td>Database</td>
+												<td colspan="2" style="padding-top: 2px;  padding-bottom: 2px;">
+												<select id="selDatabase" name="selDatabase" class="form-control input-sm">
+													<option value="">-Select-</option>
+													<option value="HIRAM_LIVE">HIRAM</option>
+													<option value="357TRADERS_LIVE">357TRADERS</option>
+												</select>
+												</td>
+											</tr>
+											<tr class="hidden">
+												<td>Show Item Cost?</td>
+												<td colspan="2" style="padding-top: 2px;  padding-bottom: 2px;">
+												<select id="selShowDetails" name="selShowDetails" class="form-control input-sm">
+													<option value="1">Yes</option>
+													<option value="0">No</option>
+												</select>
+												</td>
+											</tr>											
+											<tr>
+												<td>&nbsp;</td>
+												<td colspan="2" style="padding-top: 2px;  padding-bottom: 2px;">&nbsp;</td>
+											</tr>
+											
+										</tbody>
+									</table>
+								</div>
+							</div>
+							<div class="col-lg-4 col-md-4">
+								<!--<div class="table-responsive" style="height: 500px; width:100%; border: solid black 2px;">
+									
+								</div>-->
+								<table width="100%" border="0">
+									<tbody>
+										<tr>
+											<td>
+												Module to Access
+											</td>
+										</tr>
+										<tr>
+											<td style="border-top: 1px solid #cdd0d4; border-bottom: 1px solid #cdd0d4;" valign="top">
+												<input type="checkbox" id="PR" name="Module[]" value="PR"> Purchase Request <br>
+												<input type="checkbox" id="PO" name="Module[]" value="PO"> Purchase Order <br>
+												<input type="checkbox" id="GRPO" name="Module[]" value="GRPO"> Receiving (GRPO) <br>
+												<!-- <input type="checkbox" id="APDP" name="Module[]" value="APDP"> A/P Down Payment <br> -->
+												<input type="checkbox" id="APV" name="Module[]" value="APV"> A/P Invoice <br>
+                        <input type="checkbox" id="APCM" name="Module[]" value="APCM"> A/P Credit Memo <br>
+												<input type="checkbox" id="OP" name="Module[]" value="OP"> Outgoing Payments <br>
+												<!-- <input type="checkbox" id="GI" name="Module[]" value="GI"> Goods Issue <br>
+												<input type="checkbox" id="GR" name="Module[]" value="GR"> Goods Receipt <br> -->
+											</td>
+											<td style="border-top: 1px solid #cdd0d4; border-bottom: 1px solid #cdd0d4;" valign="top">
+												<input type="checkbox" id="SO" name="Module[]" value="SO"> Sales Order <br>
+                        <input type="checkbox" id="ARDP" name="Module[]" value="ARDP"> A/R Down Payment <br>
+												<!-- <input type="checkbox" id="DR" name="Module[]" value="DR"> Delivery <br> -->
+												<input type="checkbox" id="SI" name="Module[]" value="SI"> Sales Invoice <br>
+                        <input type="checkbox" id="ARCM" name="Module[]" value="ARCM"> A/R Credit Memo <br>
+												<input type="checkbox" id="IP" name="Module[]" value="IP"> Incoming Payments <br>
+												
+												<!-- <input type="checkbox" id="ITR" name="Module[]" value="ITR"> Inventory Transfer Request <br> -->
+												<input type="checkbox" id="IT" name="Module[]" value="IT"> Inventory Transfer <br>
+												<!-- <input type="checkbox" id="PRM" name="Module[]" value="PRM"> PR Monitoring <br>
+												<input type="checkbox" id="INM" name="Module[]" value="INM"> Inventory Monitoring <br>
+												<input type="checkbox" id="INS" name="Module[]" value="INS"> In Stock Monitoring <br> -->
+												
+											</td>
+											<td style="border-top: 1px solid #cdd0d4; border-bottom: 1px solid #cdd0d4;" valign="top">
+												<!-- <input type="checkbox" id="BP" name="Module[]" value="BP"> Business Partner <br> -->
+												<!-- <input type="checkbox" id="ITM" name="Module[]" value="ITM"> Item Master Data <br> -->
+												<!-- <input type="checkbox" id="JE" name="Module[]" value="JE"> Journal Entry <br> -->
+												<!-- <input type="checkbox" id="CC" name="Module[]" value="CC"> Cost Center <br>
+												<input type="checkbox" id="PS" name="Module[]" value="PS"> Project Setup <br> -->
+												<input type="checkbox" id="UM" name="Module[]" value="UM"> User Management <br>
+												<!--<input type="checkbox" id="CV" name="Module[]" value="CV"> Change Void Password <br>-->
+											</td>
+										</tr>
+										<tr>
+											<td>&nbsp;</td>
+											<td colspan="2" style="padding-top: 2px;  padding-bottom: 2px;">&nbsp;</td>
+										</tr>
+										<tr>
+											<td>&nbsp;</td>
+											<td colspan="2" style="padding-top: 2px;  padding-bottom: 2px;">&nbsp;</td>
+										</tr>
+										<tr>
+											<td align="right">
+												<button type="button" style="width:80px" id="btnNew" name="btnNew" onclick="reload();"><span class="fa fa-plus fa-fw"> </span>New</button>
+											</td>
+											<td colspan="2" align="right">
+												<button type="button" style="width:80px" id="btnRemove" name="btnRemove"><span class="fa fa-trash fa-fw"> </span>Remove</button>
+												<button type="button" style="width:80px" id="btnUpdate" name="btnUpdate"><span class="fa fa-pencil fa-fw"></span>Update</button>
+												<button type="button" style="width:80px" id="btnSave" name="btnSave" ><span class="fa fa-save fa-fw"></span> Save</button>
+											</td>
+										</tr>
+									</tbody>
+								</table>	
+							</div>
+							<!-- /.col-lg-8 -->
+						</div>
+						<!-- /.row -->
+					</div>
+					<!-- /.panel body -->
+				</div>
+				<!-- /.panel -->
+			</div>
+			<!-- /.col-lg-12 -->
+		</div>
+		<!-- /.row -->
+		<div id="wrapper">
+			<div class="row">
+				<div class="col-lg-12">
+					<div class="panel panel-info">
+						<div class="panel-heading">
+							User
+						</div>
+						<!-- /.panel-heading -->
+						<div class="panel-body">
+						
+							<table width="100%" class="table table-striped table-bordered table-hover table-condensed" id="tblUsersPortal">
+								<thead>
+									<tr>
+										<th>Emp Id</th>
+										<th class="hidden">UserId</th>
+										<th>Name</th>
+										<th class="hidden">Pos.Id</th>
+										<th class="hidden">Pos. Name</th>
+										<th class="hidden">Manu.Id</th>
+										<th class="hidden">Mnfctr</th>
+										<th>Portal Code</th>
+										<!--<th>Portal Pass</th>-->
+										<th class="hidden">Dept</th>
+										<th>Dept</th>
+										<th class="hidden">SAP Code</th>
+										<th class="hidden">SAP Pass</th>
+										<th>Status</th>
+										<th class="hidden">Module</th>
+										<th class="hidden">Manu</th>
+										<th class="hidden">Email To</th>
+										<th class="hidden">Per Email</th>
+										<th class="hidden">Show Details</th>
+									</tr>
+								</thead>
+								<tbody>
+									<?php
+
+										$qrySelect = odbc_exec($MSSQL_CONN, "SELECT T0.UserCode, T0.UserPass, T0.position as posid, T0.toemail, T0.per_email,
+										T1.name as position, T2.Name as Dept, T3.FirmName,
+										T0.Name, T0.Department, T0.Status, T0.sappass, T0.sapuser, T0.forms, T0.manufacturer, T0.UserId, T0.empid, T0.multimanu, T0.ShowDetails
+
+										FROM [".$_SESSION['SESS_COMMONDB']."].[dbo].[@OUSR] T0
+										LEFT JOIN [".$_SESSION['mssqldb']."].[dbo].[OHPS] T1 ON T0.position = T1.posID
+										LEFT JOIN [".$_SESSION['mssqldb']."].[dbo].[OUDP] T2 ON T0.Department = T2.Code
+										LEFT JOIN [".$_SESSION['mssqldb']."].[dbo].[OMRC] T3 ON T0.manufacturer = T3.FirmCode
+										ORDER BY T0.empid ASC");
+										
+										while (odbc_fetch_row($qrySelect)) 
+										{
+											?>	
+												<tr>
+													<td class="item-14"><?php echo odbc_result($qrySelect,'empid'); ?></td>
+													<td class="item-0 hidden"><?php echo odbc_result($qrySelect, 'UserId'); ?></td>
+													<td class="item-1"><?php echo odbc_result($qrySelect, 'Name'); ?></td>
+													<td class="item-9 hidden"><?php echo odbc_result($qrySelect, 'posid'); ?></td>
+													<td class="item-11 hidden"><?php echo odbc_result($qrySelect, 'position'); ?></td>
+													<td class="item-10 hidden"><?php echo odbc_result($qrySelect,'manufacturer'); ?></td>
+													<td class="item-12 hidden"><?php echo odbc_result($qrySelect,'FirmName'); ?></td>
+													<td class="item-2"><?php echo odbc_result($qrySelect, 'UserCode'); ?></td>
+													<!-- <td class="item-3"></td> -->
+													<td class="item-4 hidden"><?php echo odbc_result($qrySelect, 'Department'); ?></td>
+													<td class="item-13"><?php echo odbc_result($qrySelect, 'Dept'); ?></td>
+													<td class="item-5 hidden"><?php echo odbc_result($qrySelect, 'SapUser'); ?></td>
+													<td class="item-6 hidden"><?php echo odbc_result($qrySelect, 'SapPass'); ?></td>
+													<td class="item-7"><?php echo odbc_result($qrySelect, 'Status'); ?></td>
+													<td class="item-8 hidden"><?php echo odbc_result($qrySelect, 'forms'); ?></td>
+													<td class="item-15 hidden"><?php echo odbc_result($qrySelect, 'multimanu'); ?></td>
+													<td class="item-16 hidden"><?php echo odbc_result($qrySelect, 'toemail'); ?></td>
+													<td class="item-17 hidden"><?php echo odbc_result($qrySelect, 'per_email'); ?></td>
+													<td class="item-18 hidden"><?php echo odbc_result($qrySelect, 'ShowDetails'); ?></td>
+												</tr>
+											<?php
+										}
+										
+										odbc_free_result($qrySelect);
+
+									?>
+								</tbody>
+							</table>
+							</form>									
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		
+		
+		
+	<!-- Owner Data Modal  -->
+	<div class="modal fade bs-example-modal-lg" id="EmployeeModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
+		<div class="modal-dialog modal-lg">
+			<div class="panel panel-info">
+				<div class="panel-heading">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close" aria-hidden="true">&times;</button>
+					List of Employees 
+				</div>
+				<div class="panel-body">
+					
+					<div class="modal-body" id="">
+						<div class="row">
+							<div class="col-lg-2">
+								Search Item : 
+							</div>
+							<div class="col-lg-4">
+								<input type="text" name="OwnerSearch" class="form-control input-sm" placeholder="Search..." />
+							</div>
+						</div>
+						<br>
+						<div class="row">
+							<div class="col-lg-12">
+									<div id="OwnerCont">
+									</div>
+							</div>
+						</div>
+					</div>
+				
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- /Owner Data modal -->
+	
+	<!-- jQuery -->
+    <script src="../../bootstrap/vendor/jquery/jquery.min.js"></script>
+
+    <!-- Page-Level Demo Scripts - Tables - Use for reference -->
+    <script>
+    $(document).ready(function() {
+        $('#tblUsersPortal').DataTable({
+            responsive: true
+        });
+    });
+    </script>
+	
+	<?php include_once('../../include/head_bottom.php') ?>
+	<script src="../../js/UM/um.js"></script>
+	
+	
+	
+	
+	
+
+	
+	
+	

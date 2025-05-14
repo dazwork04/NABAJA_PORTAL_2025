@@ -1,0 +1,493 @@
+<?php 
+session_start(); 
+include_once('config/config.php');
+include('modal.php');
+$AccsLvl = explode(';', $_SESSION['SESS_USER_ACCS']);
+
+$empid = $_SESSION['SESS_EMP'];
+$name = $_SESSION['SESS_NAME'];
+
+?>
+<body>
+
+    <div id="wrapper">
+
+        <!-- Navigation -->
+        <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="index.html"><span style="color:black">
+				<?php
+					$qrySelect = odbc_exec($MSSQL_CONN, "USE [".$_SESSION['mssqldb']."]; SELECT * FROM OADM");
+									
+					while (odbc_fetch_row($qrySelect)) 
+					{
+						echo odbc_result($qrySelect, 'CompnyName'); 						
+					}
+					
+					odbc_free_result($qrySelect);
+				?>
+			</span></a>
+            </div>
+            <!-- /.navbar-header -->
+
+            <ul class="nav navbar-top-links navbar-right">
+				
+				<li class="dropdown">
+					<a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                        <?php echo 'Signed in as ' .ucwords($_SESSION['SESS_NAME']); ?>
+                    </a>
+				</li>
+                
+                <!-- /.dropdown -->
+                <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                        <i class="fa fa-user fa-fw"></i> <i class="fa fa-caret-down"></i>
+                    </a>
+                    <ul class="dropdown-menu dropdown-user">
+						<li><a href="logout.php"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
+                        </li>
+                    </ul>
+                    <!-- /.dropdown-user -->
+                </li>
+                <!-- /.dropdown -->
+            </ul>
+            <!-- /.navbar-top-links -->
+
+            <div class="navbar-default sidebar" role="navigation">
+                <div class="sidebar-nav navbar-collapse">
+                    <ul class="nav side-nav sidemod" id="side-menu">
+                        <li>
+                            <a href="#"><i class="fa fa-home fa-fw"></i> Module</a>
+                        </li>
+						<!-- <li>
+                            <a href="#"><i class="fa fa-files-o fa-fw"></i> Financial<span class="fa arrow"></span></a>
+                            <ul class="nav nav-second-level">
+								<?php 
+									// echo (in_array('JE', $AccsLvl) ? 
+									// '<li>
+									// 	<a href="#JE"><i class="fa fa-edit fa-fw"></i> Journal Entry</a>
+									// </li>' 
+									// : '');
+									// echo (in_array('CC', $AccsLvl) ? 
+									// '<li>
+									// 	<a href="#CC"><i class="fa fa-edit fa-fw"></i> Cost Center</a>
+									// </li>' 
+									// : '');
+									// echo (in_array('PS', $AccsLvl) ? 
+									// '<li>
+									// 	<a href="#PS"><i class="fa fa-edit fa-fw"></i> Project Setup</a>
+									// </li>' 
+									// : '');
+								?>
+							</ul>
+						</li>	 -->
+						<li>
+                            <a href="#"><i class="fa fa-files-o fa-fw"></i> Purchasing<span class="fa arrow"></span></a>
+                            <ul class="nav nav-second-level">
+								<?php 
+								// echo (in_array('PRAP', $AccsLvl) ? 
+								// '<li>
+								// 	<a href="#AppPR"><i class="fa fa-edit fa-fw"></i> PR Approval</a>
+								// </li>' 
+								// : '');
+								
+								// echo (in_array('PRAP2', $AccsLvl) ? 
+								// '<li>
+								// 	<a href="#AppPR2"><i class="fa fa-edit fa-fw"></i> PR Approval 2</a>
+								// </li>' 
+								// : '');
+								
+								echo (in_array('PR', $AccsLvl) ? 
+								'<li>
+									<a href="#PurchaseRequest"><i class="fa fa-edit fa-fw"></i> Purchase Request</a>
+								</li>' 
+								: ''); 
+								
+								echo (in_array('PO', $AccsLvl) ? 
+								'<li>
+									<a href="#PurchaseOrder"><i class="fa fa-edit fa-fw"></i> Purchase Order</a>
+								</li>' 
+								: ''); 
+								
+								echo (in_array('GRPO', $AccsLvl) ? 
+								'<li>
+									<a href="#Grpo"><i class="fa fa-edit fa-fw"></i> Receiving (GRPO)</a>
+								</li>' 
+								: ''); 
+
+								// echo (in_array('APDP', $AccsLvl) ? 
+								// '<li>
+								// 	<a href="#APDP"><i class="fa fa-edit fa-fw"></i> A/P Down Payment</a>
+								// </li>' 
+								// : ''); 
+                
+
+                echo (in_array('APCM', $AccsLvl) ? 
+								'<li>
+									<a href="#APCM"><i class="fa fa-edit fa-fw"></i> A/P Credit Memo</a>
+								</li>' 
+								: '');
+								
+								echo (in_array('APV', $AccsLvl) ? 
+								'<li>
+									<a href="#APV"><i class="fa fa-edit fa-fw"></i> A/P Invoice</a>
+								</li>' 
+								: '');
+
+								
+
+								?>
+							</ul>
+						</li>
+						<li>
+                            <a href="#"><i class="fa fa-files-o fa-fw"></i> Sales<span class="fa arrow"></span></a>
+                            <ul class="nav nav-second-level">
+								<?php
+								echo (in_array('SO', $AccsLvl) ? 
+								'<li>
+									<a href="#SalesOrder"><i class="fa fa-edit fa-fw"></i> Sales Order</a>
+								</li>' 
+								: ''); 
+								// echo (in_array('DR', $AccsLvl) ? 
+								// '<li>
+								// 	<a href="#Delivery"><i class="fa fa-edit fa-fw"></i> Delivery</a>
+								// </li>' 
+								// : '');
+                				echo (in_array('ARDP', $AccsLvl) ? 
+								'<li>
+									<a href="#ARDP"><i class="fa fa-edit fa-fw"></i> A/R Downpayment</a>
+								</li>' 
+								: ''); 
+								echo (in_array('ARCM', $AccsLvl) ? 
+								'<li>
+									<a href="#ARCM"><i class="fa fa-edit fa-fw"></i> A/R Credit Memo</a>
+								</li>' 
+								: ''); 
+								echo (in_array('SI', $AccsLvl) ? 
+								'<li>
+									<a href="#SI"><i class="fa fa-edit fa-fw"></i> A/R Invoice</a>
+								</li>' 
+								: '');
+								?>
+							</ul>
+                        </li>
+						<?php
+							echo (in_array('BP', $AccsLvl) ? 
+								'<li>
+									<a href="#BP"><i class="fa fa-edit fa-fw"></i> Business Partner</a>
+								</li>' 
+								: '');
+						?>
+						<li>
+                            <a href="#"><i class="fa fa-files-o fa-fw"></i> Inventory<span class="fa arrow"></span></a>
+                            <ul class="nav nav-second-level">
+								<?php 
+								// echo (in_array('ITM', $AccsLvl) ? 
+								// '<li>
+								// 	<a href="#ITM"><i class="fa fa-edit fa-fw"></i> Item Master Data</a>
+								// </li>' 
+								// : ''); 
+								// echo (in_array('ITR', $AccsLvl) ? 
+								// '<li>
+								// 	<a href="#InventoryTransferRequest"><i class="fa fa-edit fa-fw"></i> Inventory Transfer Request</a>
+								// </li>' 
+								// : ''); 
+								echo (in_array('IT', $AccsLvl) ? 
+								'<li>
+									<a href="#InventoryTransfer"><i class="fa fa-edit fa-fw"></i> Inventory Transfer</a>
+								</li>' 
+								: '');
+								// echo (in_array('GI', $AccsLvl) ? 
+								// ' <li>
+								// 	<a href="#GoodsIssue"><i class="fa fa-edit fa-fw"></i> Goods Issue</a>
+								// </li>' 
+								// : '');
+								// echo (in_array('GR', $AccsLvl) ? 
+								// '<li>
+								// 	<a href="#GoodsReceipt"><i class="fa fa-edit fa-fw"></i> Goods Receipt</a>
+								// </li>' 
+								// : ''); 
+								
+								// echo (in_array('INV_RPT', $AccsLvl) ? 
+								// '<li>
+								// 	<a href="#INV_RPT"><i class="fa fa-edit fa-fw"></i> Item Inventory</a>
+								// </li>' 
+								// : '');
+								?>
+							</ul>
+						</li>
+						<li>
+                            <a href="#"><i class="fa fa-files-o fa-fw"></i> Banking<span class="fa arrow"></span></a>
+                            <ul class="nav nav-second-level">
+								<?php 
+								echo (in_array('IP', $AccsLvl) ? 
+								'<li>
+									<a href="#IP"><i class="fa fa-edit fa-fw"></i> Incoming Payment</a>
+								</li>' 
+								: ''); 
+								echo (in_array('OP', $AccsLvl) ? 
+								'<li>
+									<a href="#OP"><i class="fa fa-edit fa-fw"></i> Outgoing Payment</a>
+								</li>' 
+								: ''); 
+								?>
+							</ul>
+						</li>
+						<!--<li class="hidden">
+                            <a href="#"><i class="fa fa-files-o fa-fw"></i> Service<span class="fa arrow"></span></a>
+                            <ul class="nav nav-second-level">
+								<?php
+								/* echo (in_array('SC', $AccsLvl) ? 
+								'<li>
+									<a href="#ServiceCall"><i class="fa fa-edit fa-fw"></i> Service Call</a>
+								</li>' 
+								: ''); */
+								?>
+                            </ul>
+                        </li>-->
+						<li class="hidden">
+                            <a href="#"><i class="fa fa-files-o fa-fw"></i> Reports<span class="fa arrow"></span></a>
+                            <ul class="nav nav-second-level">
+								<?php
+								echo (in_array('PRM', $AccsLvl) ? 
+								'<li>
+									<a href="#" data-toggle="modal" data-target="#srpt-modal" class="hvr-fade-2 side-links"><i class="fa fa-circle-thin"></i> PR Monitoring</a>
+								</li>' 
+								: '');
+								
+								echo (in_array('INM', $AccsLvl) ? 
+								'<li>
+									<a href="#" data-toggle="modal" data-target="#invrpt-modal" class="hvr-fade-2 side-links"><i class="fa fa-circle-thin"></i> Inventory Monitoring</a>
+								</li>' 
+								: '');
+								
+								echo (in_array('INS', $AccsLvl) ? 
+								'<li>
+									<a href="#" data-toggle="modal" data-target="#insrpt-modal" class="hvr-fade-2 side-links"><i class="fa fa-circle-thin"></i> In-Stock Monitoring</a>
+								</li>' 
+								: '');
+								
+								echo (in_array('INS', $AccsLvl) ? 
+								'<li>
+									<a href="#" data-toggle="modal" data-target="#ewt2307-modal" class="hvr-fade-2 side-links"><i class="fa fa-circle-thin"></i> EWT 2307</a>
+								</li>' 
+								: '');
+								
+								echo (in_array('INS', $AccsLvl) ? 
+								'<li>
+									<a href="#" data-toggle="modal" data-target="#apaging-modal" class="hvr-fade-2 side-links"><i class="fa fa-circle-thin"></i> A/P Aging</a>
+								</li>' 
+								: '');
+								
+								echo (in_array('INS', $AccsLvl) ? 
+								'<li>
+									<a href="#" data-toggle="modal" data-target="#araging-modal" class="hvr-fade-2 side-links"><i class="fa fa-circle-thin"></i> A/R Aging</a>
+								</li>' 
+								: '');
+
+								?>
+								
+                                <!-- <li>
+                                    <a href="#">List of Invoice</a>
+                                </li>-->
+                            </ul>
+                            <!-- /.nav-second-level -->
+                        </li>
+						<li>
+                            <a href="#"><i class="fa fa-gear fa-fw"></i> Setting<span class="fa arrow"></span></a>
+                            <ul class="nav nav-second-level">
+								<li>
+									<a href="#CP"> Change Password</a>
+								</li>
+								<?php
+								/* echo (in_array('CV', $AccsLvl) ? 
+								'<li>
+									<a href="#CV"> Change Void Password</a>
+								</li>' 
+								: ''); */
+								echo (in_array('UM', $AccsLvl) ? 
+								'<li>
+									<a href="#UserManagement"> User Management</a>
+								</li>' 
+								: '');
+								
+								if($empid == 3)
+								{
+									echo
+									'<li>
+										<a href="#logs"> LOGS</a>
+									</li>';
+								}
+								?>
+                            </ul>
+                            <!-- /.nav-second-level -->
+                        </li>
+                    </ul>
+                </div>
+                <!-- /.sidebar-collapse -->
+            </div>
+            <!-- /.navbar-static-side -->
+        </nav>
+
+        <div id="page-wrapper">
+             <div class="row">
+                <div class="col-lg-4">
+					<br>
+					<div class="panel panel-info">
+						<div class="panel-heading">
+							<span style="font-size:9pt">List of Module</span>
+						</div>
+						<div class="panel-body"><span style="font-size:9pt">
+							<u><b>Open Item List - Purchasing</b></U><br>
+							<?php
+								$qrySelect = odbc_exec($MSSQL_CONN, "USE [".$_SESSION['mssqldb']."]; SELECT 'Purchase Request' AS 'Module' ,Count(DocEntry) AS 'Purchase Request' FROM OPRQ WHERE DocStatus = 'O'");
+												
+								while (odbc_fetch_row($qrySelect)) 
+								{
+									echo '&nbsp;&nbsp;&nbsp;<a data-toggle="modal" data-target="#PRModal">' . odbc_result($qrySelect, 'Module') . ' (' . odbc_result($qrySelect, 'Purchase Request') .') </a><br>'; 						
+								}
+								
+								odbc_free_result($qrySelect);
+								
+								$qrySelect = odbc_exec($MSSQL_CONN, "USE [".$_SESSION['mssqldb']."]; SELECT 'Purchase Order' AS 'Module' ,Count(DocEntry) AS 'Purchase Order' FROM OPOR WHERE DocStatus = 'O'");
+												
+								while (odbc_fetch_row($qrySelect)) 
+								{
+									echo '&nbsp;&nbsp;&nbsp;<a data-toggle="modal" data-target="#">' . odbc_result($qrySelect, 'Module') . ' (' . odbc_result($qrySelect, 'Purchase Order') .') </a><br>'; 
+								}
+								
+								odbc_free_result($qrySelect);
+								
+								$qrySelect = odbc_exec($MSSQL_CONN, "USE [".$_SESSION['mssqldb']."]; SELECT 'Goods Receipt PO' AS 'Module' ,Count(DocEntry) AS 'Goods Receipt PO' FROM OPDN WHERE DocStatus = 'O'");
+												
+								while (odbc_fetch_row($qrySelect)) 
+								{
+									echo '&nbsp;&nbsp;&nbsp;<a data-toggle="modal" data-target="#">' . odbc_result($qrySelect, 'Module') . ' (' . odbc_result($qrySelect, 'Goods Receipt PO') .') </a><br>'; 
+								}
+								
+								odbc_free_result($qrySelect);
+								
+								$qrySelect = odbc_exec($MSSQL_CONN, "USE [".$_SESSION['mssqldb']."]; SELECT 'A/P Voucher' AS 'Module' ,Count(DocEntry) AS 'A/P Voucher' FROM OPCH WHERE DocStatus = 'O'");
+												
+								while (odbc_fetch_row($qrySelect)) 
+								{
+									echo '&nbsp;&nbsp;&nbsp;<a data-toggle="modal" data-target="#">' . odbc_result($qrySelect, 'Module') . ' (' . odbc_result($qrySelect, 'A/P Voucher') .') </a><br>'; 
+								}
+								
+								odbc_free_result($qrySelect);
+
+                $qrySelect = odbc_exec($MSSQL_CONN, "USE [".$_SESSION['mssqldb']."]; SELECT 'A/P Credit Memo' AS 'Module' ,Count(DocEntry) AS 'A/P Credit Memo' FROM ORPC WHERE DocStatus = 'O'");
+												
+								while (odbc_fetch_row($qrySelect)) 
+								{
+									echo '&nbsp;&nbsp;&nbsp;<a data-toggle="modal" data-target="#">' . odbc_result($qrySelect, 'Module') . ' (' . odbc_result($qrySelect, 'A/P Credit Memo') .') </a><br>'; 
+								}
+								
+								odbc_free_result($qrySelect);
+							?>
+						</span></div>
+					</div>
+					<br>
+					 
+                </div>
+                <div class="col-lg-4">
+					<br>
+					<div class="panel panel-info">
+						<div class="panel-heading">
+							<span style="font-size:9pt">List of Module</span>
+						</div>
+						<div class="panel-body"><span style="font-size:9pt">
+							<u><b>Open Item List - Sales</b></U><br>
+							<?php
+								$qrySelect = odbc_exec($MSSQL_CONN, "USE [".$_SESSION['mssqldb']."]; SELECT 'Sales Order' AS 'Module' ,Count(DocEntry) AS 'Sales Order' FROM ORDR WHERE DocStatus = 'O'");
+												
+								while (odbc_fetch_row($qrySelect)) 
+								{
+									echo '&nbsp;&nbsp;&nbsp;<a data-toggle="modal" data-target="#SOModal">' . odbc_result($qrySelect, 'Module') . ' (' . odbc_result($qrySelect, 'Sales Order') .') </a><br>'; 						
+								}
+								
+								odbc_free_result($qrySelect);
+								
+								// $qrySelect = odbc_exec($MSSQL_CONN, "USE [".$_SESSION['mssqldb']."]; SELECT 'Delivery' AS 'Module' ,Count(DocEntry) AS 'Delivery' FROM ODLN WHERE DocStatus = 'O'");
+												
+								// while (odbc_fetch_row($qrySelect)) 
+								// {
+								// 	echo '&nbsp;&nbsp;&nbsp;<a data-toggle="modal" data-target="#DRModal">' . odbc_result($qrySelect, 'Module') . ' (' . odbc_result($qrySelect, 'Delivery') .') </a><br>'; 
+								// }
+								
+								// odbc_free_result($qrySelect);
+								
+								$qrySelect = odbc_exec($MSSQL_CONN, "USE [".$_SESSION['mssqldb']."]; SELECT 'A/R Invoice' AS 'Module' ,Count(DocEntry) AS 'A/R Invoice' FROM OINV WHERE DocStatus = 'O'");
+												
+								while (odbc_fetch_row($qrySelect)) 
+								{
+									echo '&nbsp;&nbsp;&nbsp;<a data-toggle="modal" data-target="#">' . odbc_result($qrySelect, 'Module') . ' (' . odbc_result($qrySelect, 'A/R Invoice') .') </a><br>'; 
+								}
+								
+								odbc_free_result($qrySelect);
+
+                $qrySelect = odbc_exec($MSSQL_CONN, "USE [".$_SESSION['mssqldb']."]; SELECT 'A/R Downpayment' AS 'Module' ,Count(DocEntry) AS 'A/R Downpayment' FROM ODPI WHERE DocStatus = 'O'");
+												
+								while (odbc_fetch_row($qrySelect)) 
+								{
+									echo '&nbsp;&nbsp;&nbsp;<a data-toggle="modal" data-target="#">' . odbc_result($qrySelect, 'Module') . ' (' . odbc_result($qrySelect, 'A/R Downpayment') .') </a><br>'; 
+								}
+								
+								odbc_free_result($qrySelect);
+
+                $qrySelect = odbc_exec($MSSQL_CONN, "USE [".$_SESSION['mssqldb']."]; SELECT 'A/R Credit Memo' AS 'Module' ,Count(DocEntry) AS 'A/R Credit Memo' FROM ORIN WHERE DocStatus = 'O'");
+												
+								while (odbc_fetch_row($qrySelect)) 
+								{
+									echo '&nbsp;&nbsp;&nbsp;<a data-toggle="modal" data-target="#">' . odbc_result($qrySelect, 'Module') . ' (' . odbc_result($qrySelect, 'A/R Credit Memo') .') </a><br>'; 
+								}
+								
+								odbc_free_result($qrySelect);
+							?>
+						</span></div>
+					</div>
+					<br>
+					 
+                </div>
+            </div>
+        </div>
+        <!-- /#page-wrapper -->
+		
+		<div class="modal fade bs-example-modal-lg" id="PRModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
+			<div class="modal-dialog modal-lg">
+				<div class="panel panel-info">
+					<div class="panel-heading">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close" aria-hidden="true">&times;</button>
+						Purchase Request List
+					</div>
+					<div class="panel-body">
+						<div class="row">
+							<div class="col-lg-1">
+								<span style="font-size:9pt">Search : </span>
+							</div>
+							<div class="col-lg-4">
+								<input type="text" name="DocumentSearch" class="form-control input-sm" placeholder="Search..." />
+							</div>
+						</div>
+						<br>
+						<div class="row">
+							<div class="col-lg-12">
+								<div id="DocumentCont">
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+                </div>
+                <!-- /.col-lg-12 -->
+            </div>
+        </div>
+        <!-- /#page-wrapper -->

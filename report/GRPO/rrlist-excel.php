@@ -1,0 +1,129 @@
+<?php
+session_start();
+include_once('../../config/config.php');
+
+date_default_timezone_set('Asia/Manila');
+
+$empid = $_SESSION['SESS_EMP'];
+$PreparedBy = $_SESSION['SESS_NAME'];
+
+$txtDateFrom = $_GET['txtDateFrom'];
+$txtDateTo = $_GET['txtDateTo'];
+$txtAPVListFrom = $_GET['txtAPVListFrom'];
+$txtAPVListTo = $_GET['txtAPVListTo'];
+
+if($txtAPVListFrom != '' && $txtAPVListTo != '')
+{
+	$APVRange = " AND T0.NumAtCard BETWEEN '$txtAPVListFrom' AND '$txtAPVListTo'";
+	$APVDateRange = "";
+	$HeaderTitle = $txtAPVListFrom . ' to ' . $txtAPVListTo;
+}
+else
+{
+	if($txtDateFrom != '' && $txtDateTo != '')
+	{
+		$APVDateRange = " AND T0.DocDate BETWEEN '$txtDateFrom' AND '$txtDateTo'";
+		
+		$HeaderTitle = date('m/d/Y' ,strtotime($txtDateFrom)) . ' to ' . date('m/d/Y' ,strtotime($txtDateTo));
+	}
+	else
+	{
+		$APVDateRange = "";
+		$HeaderTitle = "";
+	}
+	
+	$APVRange = "";
+}
+
+$date = date('m/d/Y h:i a');
+$htmlheader = '';
+$htmldetails = '';
+$htmlremarks = '';
+$html = '';
+$remarks = '';
+$no = 1;
+$htmlfooter = '';
+$setData = '';
+$setData1 = '';
+$setData2 = '';
+$TotalServed = 0;
+$TotalUnserved = 0;
+$POTotal = 0;
+
+$cmpDetails = odbc_exec($MSSQL_CONN, "USE [".$_SESSION['mssqldb']."]; SELECT UPPER(T0.CompnyName) as CompnyName, 
+																			T0.CompnyAddr, 
+																			T1.Street, 
+																			T1.City
+																	FROM OADM T0, ADM1 T1");
+odbc_fetch_row($cmpDetails);
+
+$qry = odbc_exec($MSSQL_CONN, " 
+		SELECT T0.DocDate,
+		T0.CardName,
+		T0.NumAtCard,
+		CASE WHEN T0.U_SiDr IS NULL THEN T0.Comments ELSE T0.U_SiDr END AS CustInvNo,
+		T0.DocTotal,
+		CASE WHEN T0.DocStatus = 'O' THEN 'Open' ELSE
+			CASE WHEN T0.CANCELED = 'Y' THEN 'Canceled' ELSE 'Closed' END
+		END AS DocStatus
+FROM OPDN T0
+WHERE T0.DocEntry != '' 
+".$APVDateRange."
+".$APVRange."
+ORDER BY T0.DocDate ASC, T0.NumAtCard ASC");
+		
+		$no = 1;
+		
+		$DateRange = $HeaderTitle;
+		
+		$TitleHeader = ""."\t"."RECEIVING LIST"."\t";
+		$DateHeader = ""."\t".$DateRange."\t".""."\t"."Date Printed: ".date("m/d/Y h:i A")."\t";
+								
+		$columnHeader = "R.R. Date"."\t".
+						"Vendor Name"."\t".
+						"R.R. Ref. No."."\t".
+						"SI/DR Ref. No."."\t".
+						"R.R. Total"."\t".
+						"R.R. Status"."\t";
+							
+		if(odbc_num_rows($qry) == 0)
+		{
+			
+			$htmldetails .= '<tr>
+												<td colspan="4" align="left">No records found.</td>
+											</tr>';	
+		}
+			
+		while (odbc_fetch_row($qry)) 
+			{
+				$setData .= trim(date('m/d/Y' ,strtotime(odbc_result($qry, 'DocDate'))))."\t".
+										trim(utf8_encode(odbc_result($qry, 'CardName')))."\t".
+										trim(odbc_result($qry, 'NumAtCard'))."\t".
+										trim(odbc_result($qry, 'CustInvNo'))."\t".
+										trim(number_format(odbc_result($qry, 'DocTotal'),2))."\t".
+										trim(odbc_result($qry, 'DocStatus'))."\t".
+					"\n";
+				$no++;
+				
+				$TotalServed += odbc_result($qry, 'DocTotal');
+				
+				$POTotal += odbc_result($qry, 'DocTotal');
+			} 
+			$setData1 .= trim('Total Served :' . number_format($TotalServed,2))."\t";
+			
+			$setData .= trim('')."\t".
+										trim('')."\t".
+										trim('')."\t".
+										trim('Total')."\t".
+										trim(number_format($POTotal,2))."\t".
+										trim('')."\t".
+										trim('')."\t"."\n";
+
+header("Content-type: application/octet-stream");
+header("Content-Disposition: attachment; filename=Receiving List_".$date.".xls");
+header("Pragma: no-cache");
+header("Expires: 0");
+
+echo ucwords($TitleHeader)."\n". $DateHeader."\n".$setData1."\n".ucwords($columnHeader)."\n".$setData."\n";
+
+?>
