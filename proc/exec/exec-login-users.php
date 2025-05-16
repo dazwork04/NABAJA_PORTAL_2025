@@ -3,10 +3,15 @@ session_start();
 
 //Sanitize the POST values
 $sqluser = 'sa';
-$sqlpass = 'devs@p2021';
-$server = 'SUPERSPEED-DEV8';
+$sqlpass = 'nlcs@p2022';
+$server = 'NLC-SVR';
 $db = $_POST['dbList']; 
 $db1 = 'NLC-COMMON';
+// $sqluser = 'sa';
+// $sqlpass = 'devs@p2021';
+// $server = 'SUPERSPEED-DEV8';
+// $db = $_POST['dbList']; 
+// $db1 = 'NLC-COMMON';
 
 $username = $_POST['username'];
 $password = $_POST['password'];
