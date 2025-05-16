@@ -82,9 +82,9 @@ if($err == 0){
 	$_SESSION['LICENSE_SERVER'] = $server;
 
   // Crystal Report
-  $_SESSION['SERVER_IP'] = $serverIP;
-  $_SESSION['CR_PORT'] = $crPort;
-  $_SESSION['CR_PATH'] = $crPath;
+  // $_SESSION['SERVER_IP'] = $serverIP;
+  // $_SESSION['CR_PORT'] = $crPort;
+  // $_SESSION['CR_PATH'] = $crPath;
 
 	$empid = odbc_result($qry, 'empid');
 	$name = odbc_result($qry, 'Name');
