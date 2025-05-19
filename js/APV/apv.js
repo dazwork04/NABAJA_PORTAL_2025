@@ -2583,9 +2583,9 @@ $(document).ready(function()
       // if(doctype == 'S')
       // {
         const requestBody = {
-            report: 'Error',
+            report: 'AP Voucher',
             parameters: {
-              // 'DocKey@': docentry
+              'DocKey@': docentry
             }
           };
           generateReport(host, requestBody);
