@@ -42,7 +42,7 @@ else
 			<th>Vendor Code</th>
 			<th>Vendor Name</th>
 			<th>A.P. Ref.<br>No.</th>
-			<th>Cust. Inv. No.</th>
+			<th>Remarks</th>
 			<th>Net Due</th>
 			<th>A.P. Total</th>
 			<th>A.P. Status</th>
@@ -58,8 +58,6 @@ else
 										T0.NumAtCard,
 										CASE WHEN T0.CANCELED IN ('C','Y') THEN -1 * T0.DocTotal ELSE T0.DocTotal END AS DocTotal,
 										T0.Comments,
-										CASE WHEN T0.U_SiDr IS NULL THEN T0.Comments ELSE T0.U_SiDr
-										END AS CustInvNo,
 										T0.DocTotal - T0.PaidToDate AS NetDue,
 										CASE WHEN T0.PaidToDate = 0 THEN 'Unpaid' 
 											WHEN T0.PaidToDate = T0.DocTotal THEN 'Paid'
@@ -86,7 +84,7 @@ else
 										<td>'.utf8_encode(odbc_result($qry, 'CardCode')).'</td>
 										<td>'.utf8_encode(odbc_result($qry, 'CardName')).'</td>
 										<td align="center">'.odbc_result($qry, 'NumAtCard').'</td>
-										<td align="center">'.odbc_result($qry, 'CustInvNo').'</td>
+										<td align="center">'.odbc_result($qry, 'Comments').'</td>
 										<td align="right">'.number_format(odbc_result($qry, 'NetDue'),2).'</td>
 										<td align="right">'.number_format(odbc_result($qry, 'DocTotal'),2).'</td>
 										<td align="center">'.odbc_result($qry, 'DocStatus1').'/'.odbc_result($qry, 'DocStatus').'</td>

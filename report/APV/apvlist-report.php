@@ -61,8 +61,6 @@ $qry = odbc_exec($MSSQL_CONN, "
 						T0.NumAtCard,
 						CASE WHEN T0.CANCELED IN ('C','Y') THEN -1 * T0.DocTotal ELSE T0.DocTotal END AS DocTotal,
 						T0.Comments,
-						CASE WHEN T0.U_SiDr IS NULL THEN T0.Comments ELSE T0.U_SiDr
-						END AS CustInvNo,
 						T0.DocTotal - T0.PaidToDate AS NetDue,
 						CASE WHEN T0.PaidToDate = 0 THEN 'Unpaid' 
 						WHEN T0.PaidToDate = T0.DocTotal THEN 'Paid'
@@ -87,7 +85,7 @@ while (odbc_fetch_row($qry))
 					   <td width="10%" style="padding: 1px; ">'.utf8_encode(odbc_result($qry, 'CardCode')).'</td>
 					   <td width="25%" style="padding: 1px; ">'.utf8_encode(odbc_result($qry, 'CardName')).'</td>
 					   <td width="10%" style="padding: 1px; " align="center">'.odbc_result($qry, 'NumAtCard').'</td>
-					   <td width="10%" style="padding: 1px; " align="center">'.odbc_result($qry, 'CustInvNo').'</td>
+					   <td width="10%" style="padding: 1px; " align="center">'.odbc_result($qry, 'Comments').'</td>
 					   <td width="10%" style="padding: 1px; " align="right">'.number_format(odbc_result($qry, 'NetDue'),2).'</td>
 					   <td width="10%" style="padding: 1px; " align="right">'.number_format(odbc_result($qry, 'DocTotal'),2).'</td>
 					   <td width="10%" style="padding: 1px; " align="center">'.odbc_result($qry, 'DocStatus1').'/'.odbc_result($qry, 'DocStatus').'</td>
