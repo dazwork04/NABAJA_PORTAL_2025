@@ -278,7 +278,7 @@
 													<td class="hidden"><input type="text" class="form-control input-sm" id="txtCheckRowNo" name="txtCheckRowNo"></td>
 													<td>
 														<div id="txtCheckDueDateCont" class="input-group" style="height: 18px; padding: 0 4px; margin: 0;">
-															<input type="text" class="form-control input-sm required" id="txtCheckDueDate" name="txtCheckDueDate">
+															<input type="text" class="form-control input-sm " id="txtCheckDueDate" name="txtCheckDueDate">
 															<span class="input-group-addon" style="height: 18px; padding: 0 4px; margin: 0;"><span class="glyphicon glyphicon-calendar"></span></span>
 														</div>
 													</td>
@@ -361,7 +361,7 @@
 														<td width="30%">GL Account</td>
 														<td width="70%" style="padding-top: 2px;  padding-bottom: 2px;">
 															<div class="input-group acctcodeCont">
-																<input readonly class="form-control input-sm acctcode required" id="txtGLAccountCash" name="txtGLAccountCash" />
+																<input readonly class="form-control input-sm acctcode " id="txtGLAccountCash" name="txtGLAccountCash" />
 																<span class="input-group-addon" style="height: 18px; padding: 0 4px; margin: 0;" data-toggle="modal" data-target="#AcctModal"><span class="glyphicon glyphicon-list"></span></span>
 															</div>
 														</td>
