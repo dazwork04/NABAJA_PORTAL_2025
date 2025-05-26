@@ -56,7 +56,7 @@ $addpayment = $_POST['addpayment'];
 $voucherno = $_POST['voucherno']; */
 $transactiontype = $_POST['transactiontype'];
 $txtPrjCode = $_POST['txtPrjCode'];
-$txtRemitTo = $_POST['txtRemitTo'];
+// $txtRemitTo = $_POST['txtRemitTo'];
 
 $radCategory = $_POST['radCategory'];
 
@@ -104,7 +104,7 @@ if ($err == 0) {
 			$oRct->CounterReference = $reference;
 			$oRct->Remarks = $remarks;
 			$oRct->Series = $series;
-			$oRct->UserFields->Fields["U_RemitTo"]->Value = $txtRemitTo;
+			// $oRct->UserFields->Fields["U_RemitTo"]->Value = $txtRemitTo;
 			
 			if($txtPrjCode != '') //ProjectCode
 			{
@@ -120,7 +120,7 @@ if ($err == 0) {
 			$oRct->DueDate = $duedate;
 			$oRct->TaxDate = $documentdate;
 			$oRct->CounterReference = $reference;
-			$oRct->UserFields->Fields["U_RemitTo"]->Value = $txtRemitTo;
+			// $oRct->UserFields->Fields["U_RemitTo"]->Value = $txtRemitTo;
 			
 			if($txtPrjCode != '') //ProjectCode
 			{

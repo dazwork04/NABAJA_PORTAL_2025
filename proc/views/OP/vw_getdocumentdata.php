@@ -26,7 +26,6 @@ $qry = odbc_exec($MSSQL_CONN, "USE [".$_SESSION['mssqldb']."];
 		T0.CashAcct, 
 		T0.TrsfrSum, 
 		T0.TrsfrDate,
-		T0.U_RemitTo,
                 
 		T0.TrsfrRef, 
 		T0.TrsfrAcct, 
@@ -85,7 +84,6 @@ while (odbc_fetch_row($qry)) {
 				"CardCode" => odbc_result($qry, 'CardCode'),
 				"CardName" => odbc_result($qry, 'CardName'),
 				"Address" => utf8_encode(odbc_result($qry, 'Address')),
-				"U_RemitTo" => utf8_encode(odbc_result($qry, 'U_RemitTo')),
 				"CntctCode" => odbc_result($qry, 'CntctCode'),
 				"TaxDate" => date('m/d/Y' ,strtotime(odbc_result($qry, 'TaxDate'))),
 				"DocDueDate" => date('m/d/Y' ,strtotime(odbc_result($qry, 'DocDueDate'))),
